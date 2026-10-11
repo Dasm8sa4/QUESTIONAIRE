@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Der Fragebogen für uns zwei</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f0fa; --ink:#2a1b45; --muted:#6a5a8a; --card:#ffffff; --line:#dccff0;
+  --accent:#b8334b; --accent-ink:#ffffff; --soft:#efe6f8; --ok:#2b7a58;
+  --serif:"Newsreader", Georgia, "Times New Roman", serif;
+  --sans:"Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#19102b; --ink:#f3ecfb; --muted:#b4a3d1; --card:#261a40; --line:#3c2b5e;
+    --accent:#ff8a9b; --accent-ink:#2a1020; --soft:#2f2150; --ok:#7fd1a8;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#19102b; --ink:#f3ecfb; --muted:#b4a3d1; --card:#261a40; --line:#3c2b5e;
+  --accent:#ff8a9b; --accent-ink:#2a1020; --soft:#2f2150; --ok:#7fd1a8;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:17px; line-height:1.55; min-height:100vh}
+main{max-width:640px; margin:0 auto; padding:22px 20px 64px}
+button{font:inherit; color:inherit}
+[hidden]{display:none !important}
+:focus-visible{outline:3px solid var(--accent); outline-offset:3px; border-radius:6px}
+
+.bar{display:flex; gap:3px; margin:6px 0 10px}
+.bar i{flex:1; height:5px; border-radius:3px; background:var(--line); transition:background .3s}
+.bar i.done{background:var(--accent)}
+.bar i.now{background:var(--muted)}
+.chapter{color:var(--muted); font-size:15px; min-height:1.5em; margin:0 0 28px}
+
+.q{font-family:var(--serif); font-weight:500; font-size:clamp(28px,6.4vw,38px); line-height:1.2; letter-spacing:-.01em; margin:0 0 12px; transition:filter .9s ease, opacity .9s ease}
+.sealed .q{filter:blur(11px); opacity:.55; user-select:none}
+.note{font-family:var(--serif); font-style:italic; color:var(--muted); font-size:19px; margin:0 0 6px; transition:filter .9s ease, opacity .9s ease}
+.sealed .note{filter:blur(8px); opacity:.5}
+.hint{display:none; margin:26px 0 0; padding:18px 20px; border-radius:14px; background:var(--soft); font-family:var(--serif); font-style:italic; font-size:20px; line-height:1.4}
+.sealed .hint{display:block}
+.body{margin-top:24px; transition:opacity .6s ease .25s, transform .6s ease .25s}
+.sealed .body{opacity:0; transform:translateY(8px); pointer-events:none; height:0; overflow:hidden; margin:0}
+
+.opts{display:grid; gap:10px; margin:0 0 20px}
+.opt{text-align:left; background:var(--card); border:1.5px solid var(--line); border-radius:12px; padding:14px 16px; cursor:pointer; line-height:1.4; transition:border-color .15s, background .15s, transform .1s}
+.opt:hover{border-color:var(--muted)}
+.opt:active{transform:scale(.99)}
+.opt[aria-checked="true"]{border-color:var(--accent); background:var(--soft); box-shadow:inset 4px 0 0 var(--accent)}
+.two{grid-template-columns:1fr 1fr}
+
+label.t{display:block; color:var(--muted); font-size:15px; margin:0 0 6px}
+textarea,input[type=text]{width:100%; padding:12px 14px; font:inherit; color:var(--ink); background:var(--card); border:1.5px solid var(--line); border-radius:12px}
+textarea{min-height:84px; resize:vertical}
+textarea:focus,input[type=text]:focus{outline:none; border-color:var(--accent)}
+textarea.code{min-height:96px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; word-break:break-all}
+
+.row{display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:22px}
+.btn{background:var(--accent); color:var(--accent-ink); border:0; border-radius:999px; padding:14px 26px; font-weight:600; cursor:pointer; transition:opacity .15s, transform .1s}
+.btn:active{transform:scale(.98)}
+.btn[disabled]{opacity:.35; cursor:not-allowed}
+.btn.ghost{background:transparent; color:var(--ink); border:1.5px solid var(--line)}
+.back{background:none; border:0; color:var(--muted); cursor:pointer; padding:8px 4px; text-decoration:underline; text-underline-offset:3px}
+
+h1{font-family:var(--serif); font-weight:500; font-size:clamp(34px,8vw,50px); line-height:1.1; letter-spacing:-.015em; margin:36px 0 18px}
+h2{font-family:var(--serif); font-weight:500; font-size:26px; line-height:1.25; margin:40px 0 10px}
+h2.q{margin-top:0}
+h3{font-size:17px; margin:26px 0 6px}
+p.lead{font-size:19px; color:var(--muted); max-width:34em}
+.fine{color:var(--muted); font-size:15px}
+.list{display:grid; gap:12px; margin-top:14px}
+.item{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; border-left:5px solid var(--line)}
+.item.match{border-left-color:var(--ok)}
+.item.talk{border-left-color:var(--accent)}
+.item.learn{border-left-color:var(--muted)}
+.item .qq{font-family:var(--serif); font-size:19px; line-height:1.3; margin:0 0 8px}
+.item .aa{margin:4px 0 0; font-size:16px}
+.item .aa b{font-weight:600}
+.item .aa em{display:block; color:var(--muted); font-family:var(--serif); font-size:17px; margin-top:2px}
+.tag{display:inline-block; font-size:14px; font-weight:600; margin:0 0 6px}
+.item.match .tag{color:var(--ok)} .item.talk .tag{color:var(--accent)} .item.learn .tag{color:var(--muted)}
+.check{display:flex; gap:10px; align-items:flex-start; margin-top:10px; color:var(--muted); font-size:15px}
+.check input{margin-top:5px}
+.toast{color:var(--muted); font-size:15px; min-height:1.4em; margin-top:10px}
+.panel{background:var(--soft); border-radius:16px; padding:18px 18px 20px; margin-top:22px}
+details summary{cursor:pointer; font-weight:600; margin-top:28px}
+.letter{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:26px 24px 8px; margin-top:30px; font-family:var(--serif); font-size:20px; line-height:1.55}
+.letter p{margin:0 0 16px}
+.letter .hi{font-size:28px; font-weight:500; margin-bottom:18px}
+@media (max-width:460px){.two{grid-template-columns:1fr}}
+@media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+<main id="app" aria-live="polite"></main>
+
+<script>
+const CHAPTERS = ["Ehrlichkeit", "Wenn es schwer wird", "Nähe", "Eure Zukunft"];
+
+/* Anrede für das Gegenüber (g = 'm' oder 'f') */
+function P(g){
+  const m = g === "m";
+  return {
+    nom: m ? "dein Partner" : "deine Partnerin",
+    Nom: m ? "Dein Partner" : "Deine Partnerin",
+    acc: m ? "deinen Partner" : "deine Partnerin",
+    dat: m ? "deinem Partner" : "deiner Partnerin",
+    er: m ? "er" : "sie",
+    seine: m ? "seine" : "ihre"
+  };
+}
+
+/* q und o sind Funktionen (p = Gegenüber, me = eigenes Geschlecht).
+   Die Reihenfolge der Antworten bleibt in jeder Version gleich – nur so lässt sich vergleichen.
+   u = Antworten, die „noch offen" bedeuten. kind: "learn" = Unterschiede sind okay, aber gut zu wissen;
+   "comp" = Antworten müssen zueinander passen (ich/du). */
+const Q = [
+ // Ehrlichkeit
+ {c:0, q:()=>"Was ist dein Ziel im Leben?",
+  o:()=>["Ein ruhiges, stabiles Leben mit Menschen, die ich liebe","Etwas Eigenes aufbauen, das bleibt","Wachsen – an mir, an Erfahrungen, an Herausforderungen","Ehrlich gesagt weiß ich es noch nicht"], u:[3],
+  h:"Eine Frage, die sich leicht anfühlt – und es selten ist."},
+ {c:0, q:()=>"Wohin willst du im Leben?",
+  o:()=>["In die Tiefe – wenige, echte Beziehungen","In die Weite – Neues, Reisen, Veränderung","Nach oben – Erfolg, Einfluss, Karriere","Nach innen – erst einmal zu mir selbst finden"], u:[3],
+  h:"Gleich geht es um die Richtung, nicht um das Ziel. Das ist ein Unterschied."},
+ {c:0, q:()=>"Was ist deine Agenda in dieser Beziehung?", note:()=>"Ganz ehrlich: Was willst du hier wirklich?",
+  o:()=>["Eine Partnerschaft auf Augenhöhe","Sicherheit und Geborgenheit","Gemeinsam wachsen","Etwas, das ich selbst noch nicht benennen kann"], u:[3],
+  h:"Jetzt wird es direkter. Diese Frage wird selten laut beantwortet."},
+ {c:0, q:p=>`Würdest du ${p.dat} gegenüber immer aus reiner Absicht handeln?`,
+  o:()=>["Ja, immer","Meistens – ich bin auch nur ein Mensch","Nicht immer, manchmal geht es auch um mich","Darüber müsste ich ehrlich nachdenken"], u:[3],
+  h:"Hier trennt sich, was wir von uns glauben, von dem, was wir tun."},
+ {c:0, q:()=>"Würdest du Sichtweisen in Betracht ziehen, die nicht deinen eigenen entsprechen – und auf deine tiefsten Schmerzpunkte hinschauen?", note:()=>"Auch wenn es dir im ersten Moment nichts bringt.",
+  o:()=>["Ja, auch wenn es wehtut","Ja, aber ich brauche Zeit dafür","Nur, wenn ich mich sicher fühle","Eher nicht – ich verteidige mich zuerst"], u:[],
+  h:"Diese Frage verlangt Mut, nicht Wissen."},
+ {c:0, q:()=>"Warum hast du die politische Meinung, die du hast?",
+  o:()=>["Sie kommt aus meiner Familie und meinem Umfeld","Sie kommt aus eigenen Erfahrungen","Sie kommt aus Recherche und Nachdenken","Ich hinterfrage sie gerade selbst"], u:[3], kind:"learn",
+  h:"Es geht gleich weniger um deine Meinung als um ihren Ursprung."},
+ {c:0, q:()=>"Was denkst du über andere Frauen – GANZ ehrlich?", note:()=>"Du darfst hier unbequem ehrlich sein.",
+  o:()=>["Ich sehe sie überwiegend positiv","Ich sehe sie gemischt – wie Menschen eben","Ich bin oft kritisch","Ich vergleiche mich viel mit ihnen"], u:[],
+  h:"Die Frage, bei der man gern ausweicht. Sei kurz mutiger."},
+
+ // Wenn es schwer wird
+ {c:1, q:p=>`Würdest du ${p.acc} noch einmal wählen, wenn ${p.er} krank wäre oder ${p.seine} Motivation verliert?`,
+  o:()=>["Ja, ohne zu zögern","Ja – aber es wäre eine echte Herausforderung","Ich weiß es nicht","Das hinge davon ab, wie wir damit umgehen"], u:[2],
+  h:"Ab hier geht es um euch, wenn es nicht leicht ist."},
+ {c:1, q:p=>`Was passiert, wenn du oder ${p.nom} zunimmt, die Motivation verliert oder sich körperlich verändert – könnt ihr euch dann trotzdem noch gewählt fühlen?`,
+  o:()=>["Ja, Liebe hängt für mich nicht am Körper","Ja, wenn wir offen darüber reden","Ich fürchte, es würde etwas verändern","Ich weiß es nicht, und das beunruhigt mich"], u:[3],
+  h:"Eine Frage über Körper, Zeit und das Gefühl, gewählt zu sein."},
+ {c:1, q:p=>`Bist du hier, um ${p.acc} zu unterstützen?`,
+  o:()=>["Ja – in guten und in schweren Zeiten","Ja, solange es auf Gegenseitigkeit beruht","Ich möchte es, weiß aber nicht immer, wie","Ich bin hier, um gemeinsam zu wachsen, nicht nur um zu stützen"], u:[2],
+  h:"Kurz und einfach – und trotzdem schwerer, als sie aussieht."},
+ {c:1, q:p=>`Wie gehst du mit Stress um – und wie soll ${p.nom} dich unterstützen, ohne es schlimmer zu machen?`,
+  o:()=>["Ich brauche Ruhe und Abstand","Ich brauche jemanden, der zuhört","Ich brauche praktische Hilfe","Ich weiß es selbst noch nicht genau"], u:[3], kind:"learn",
+  h:"Hier erfährst du etwas, das dein Gegenüber vielleicht nie ausgesprochen hat."},
+ {c:1, q:p=>`Wenn du dich ungesehen oder missverstanden fühlst – was brauchst du dann von ${p.dat}?`,
+  o:p=>[`Dass ${p.er} fragt, statt zu vermuten`,"Dass ich in den Arm genommen werde",`Dass ${p.er} mir Raum gibt und später zurückkommt`,"Dass mir gesagt wird, dass ich wichtig bin"], u:[], kind:"learn",
+  h:"Die Antwort darauf ist ein Schlüssel. Hast du ihn schon mal benannt?"},
+ {c:1, q:()=>"Wenn es euch nicht gut geht – wie findet ihr wieder zueinander?",
+  o:()=>["Wir reden direkt darüber, auch wenn es unbequem ist","Wir lassen erst die Gefühle abkühlen","Wir finden über Nähe und Berührung zurück","Dafür brauchen wir noch einen gemeinsamen Weg"], u:[3],
+  h:"Streit ist nicht das Problem. Der Weg zurück ist die Frage."},
+ {c:1, q:()=>"Glaubst du, dass Liebe allein reicht, um zusammenzubleiben?", note:()=>"Warum – oder warum nicht?",
+  o:()=>["Ja, Liebe trägt alles","Nein, es braucht auch Einsatz und gemeinsame Werte","Liebe ist der Anfang, nicht die Garantie","Ich bin mir da gerade nicht sicher"], u:[3],
+  h:"An dieser Frage scheitern viele Paare leise."},
+ {c:1, q:()=>"Wie geht ihr mit der Spannung zwischen Freiheit und Verbindlichkeit um?",
+  o:()=>["Freiheit ist mir fast wichtiger","Verbindlichkeit gibt mir Freiheit","Wir müssen beides immer neu aushandeln","Ich spüre da in mir einen Widerspruch"], u:[3],
+  h:"Zwei Dinge, die sich widersprechen – und doch beide wahr sind."},
+
+ // Nähe
+ {c:2, q:()=>"Wie oft wünschst du dir Intimität – und was lässt dich nah, gesehen und sicher fühlen?",
+  o:()=>["Regelmäßig und bewusst","Spontan, wenn es sich richtig anfühlt","Für mich beginnt Nähe außerhalb des Schlafzimmers","Darüber haben wir noch nie wirklich gesprochen"], u:[3],
+  h:"Jetzt wird es körperlich und emotional zugleich."},
+ {c:2, q:()=>"Wie sieht „gut für dich sorgen“ für dich aus – und ist das für dich ein gemeinsamer oder ein persönlicher Wert?",
+  o:()=>["Gesundheit und Bewegung","Ruhe, Pausen und Grenzen","Persönliche Entwicklung","Gemeinsam sorgen wir besser füreinander als allein"], u:[], kind:"learn",
+  h:"Klingt harmlos. Ist es nicht."},
+ {c:2, q:()=>"Was ist eine Sache, bei der du niemals Kompromisse machen willst – nicht einmal in einer Ehe?",
+  o:()=>["Meine Werte","Meine Freiheit","Meine Gesundheit","Mein Umfeld und meine Herkunft"], u:[], kind:"learn",
+  h:"Gleich geht es um die eine Linie, die du nicht überschreitest."},
+
+ // Eure Zukunft
+ {c:3, q:p=>`Möchtest du mit ${p.dat} ein Baby – oder eine Familie? Und was bedeutet das für dich?`,
+  o:()=>["Ein Kind, ganz klar","Eine Familie – mit allem, was dazugehört","Beides, aber nicht sofort","Ich bin mir noch nicht sicher"], u:[3],
+  h:"Zwei Wörter, die man oft für dasselbe hält."},
+ {c:3, q:(p,me)=> me==="m" ? "Was für ein Vater möchtest du sein – und welcher fürchtest du zu werden?" : "Was für eine Mutter möchtest du sein – und welche fürchtest du zu werden?",
+  o:()=>["Geduldig und zugewandt","Klar und verlässlich","Frei und abenteuerlustig","Ich fürchte, meine Eltern zu wiederholen"], u:[], kind:"learn",
+  h:"Du wirst gleich etwas über deine Kindheit verraten, ohne sie zu erwähnen."},
+ {c:3, q:()=>"Wenn ihr Kinder habt – wer tritt beruflich kürzer, oder macht ihr beide weiter?",
+  o:p=>["Ich trete kürzer",`${p.Nom} tritt kürzer`,"Wir teilen alles gleichmäßig","Wir lösen es zusammen, wenn es soweit ist"], u:[3], kind:"comp",
+  h:"Die praktische Frage, die oft die emotionalste ist."},
+ {c:3, q:()=>"Welche Rolle sollen eure Eltern oder Schwiegereltern in eurem Leben spielen – tägliche Unterstützung oder gesunder Abstand?",
+  o:()=>["Nah und im Alltag verbunden","Regelmäßig, aber mit klaren Grenzen","Eher auf Abstand","Das müssten wir erst gemeinsam herausfinden"], u:[3],
+  h:"Es geht um Nähe – aber nicht nur zwischen euch beiden."},
+ {c:3, q:p=>`Welchen Lebensstil erträumst du dir mit ${p.dat} – ruhig und verwurzelt oder wild und voller Veränderung?`,
+  o:()=>["Ruhig und verwurzelt","Wild und voller Veränderung","Eine Mischung aus beidem","Ich weiß, was ich nicht will, aber nicht, was ich will"], u:[3],
+  h:"Fast geschafft. Jetzt geht es um das Bild, das du im Kopf hast."},
+ {c:3, q:p=>`Wo möchtest du mit ${p.dat} leben?`, note:()=>"Stadt, Natur, nahe der Familie oder im Ausland?",
+  o:()=>["In der Stadt","In der Natur","Nahe bei der Familie","Im Ausland"], u:[],
+  h:"Die letzte Frage. Danach zeige ich dir, was ihr gemeinsam habt."}
+];
+
+const KEY = "fragebogen-v2";
+let st = {prof:{name:"", g:null, pg:null}, i:-1, a:[], t:[], other:""};
+let saved = null;
+let revealedAt = 0;
+try { const r = localStorage.getItem(KEY); if (r) saved = JSON.parse(r); } catch(e){}
+function persist(){ try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} }
+
+const app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const me = () => st.prof;
+const pOf = () => P(me().pg);
+
+function bar(i){ return '<div class="bar" aria-hidden="true">' + Q.map((_,k)=>`<i class="${k<i?'done':k===i?'now':''}"></i>`).join("") + '</div>'; }
+
+async function copyText(txt, toastEl, okMsg){
+  let ok = false;
+  try { await navigator.clipboard.writeText(txt); ok = true; } catch(e){}
+  if (!ok) {
+    const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select();
+    try { ok = document.execCommand("copy"); } catch(e){}
+    ta.remove();
+  }
+  toastEl.textContent = ok ? okMsg : "Kopieren hat nicht geklappt. Markiere den Text im Feld und kopiere ihn von Hand.";
+}
+
+/* ---------- Start ---------- */
+function intro(){
+  const cont = saved && saved.prof && saved.prof.g && saved.i >= 0;
+  const done = cont && saved.i >= Q.length;
+  app.innerHTML = `
+    <h1>${Q.length} Fragen für euch beide. Jede öffnet die nächste.</h1>
+    <p class="lead">Ihr beantwortet die Fragen nacheinander, jeder für sich. Die nächste Frage siehst du immer nur verschwommen, bis du sie aufdeckst. Am Ende tauscht ihr einen kurzen Code aus und seht, wo ihr euch einig seid und worüber ihr noch reden solltet.</p>
+    <div class="row">
+      <button class="btn" id="go">Los geht’s</button>
+      ${cont ? `<button class="btn ghost" id="cont">${done ? "Zu meinem Ergebnis" : "Weitermachen bei Frage " + (saved.i+1)}</button>` : ""}
+    </div>`;
+  document.getElementById("go").onclick = profile;
+  if (cont) document.getElementById("cont").onclick = () => { st = saved; st.i >= Q.length ? end() : question(true); };
+}
+
+function profile(){
+  const pr = st.prof;
+  app.innerHTML = `
+    <h1>Kurz zu dir</h1>
+    <p class="lead">Damit die Fragen zu dir passen und dein Gegenüber richtig angesprochen wird.</p>
+    <label class="t" for="nm">Dein Vorname (optional, erscheint im Vergleich)</label>
+    <input type="text" id="nm" maxlength="30" autocomplete="given-name" value="${esc(pr.name)}">
+    <h3>Ich bin</h3>
+    <div class="opts two" role="radiogroup" aria-label="Ich bin" data-f="g">
+      <button class="opt" role="radio" data-v="m" aria-checked="${pr.g==='m'}">Ein Mann</button>
+      <button class="opt" role="radio" data-v="f" aria-checked="${pr.g==='f'}">Eine Frau</button>
+    </div>
+    <h3>Mein Gegenüber ist</h3>
+    <div class="opts two" role="radiogroup" aria-label="Mein Gegenüber ist" data-f="pg">
+      <button class="opt" role="radio" data-v="m" aria-checked="${pr.pg==='m'}">Ein Mann</button>
+      <button class="opt" role="radio" data-v="f" aria-checked="${pr.pg==='f'}">Eine Frau</button>
+    </div>
+    <div class="row"><button class="btn" id="start">Erste Frage aufdecken</button></div>`;
+  const start = document.getElementById("start");
+  const chk = () => { start.disabled = !(pr.g && pr.pg); };
+  chk();
+  app.querySelectorAll(".opts").forEach(grp => grp.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+    pr[grp.dataset.f] = b.dataset.v;
+    grp.querySelectorAll(".opt").forEach(o => o.setAttribute("aria-checked", o===b));
+    chk();
+  }));
+  start.onclick = () => {
+    pr.name = document.getElementById("nm").value.trim();
+    st = {prof:pr, i:0, a:[], t:[], other:""}; persist(); question(true);
+  };
+}
+
+/* ---------- Fragen ---------- */
+function question(sealed){
+  const i = st.i; if (i >= Q.length) return end();
+  const q = Q[i], p = pOf(), g = me().g;
+  const prev = st.a[i] || {c:null, x:""};
+  const opts = q.o(p, g);
+  app.innerHTML = `
+    ${bar(i)}
+    <p class="chapter">${esc(CHAPTERS[q.c])}</p>
+    <section id="card" class="${sealed ? 'sealed' : ''}">
+      <h2 class="q">${esc(q.q(p, g))}</h2>
+      ${q.note ? `<p class="note">${esc(q.note(p, g))}</p>` : ""}
+      <div class="hint">${i===0 ? "Die erste Frage wartet schon." : esc(q.h)}</div>
+      <div class="row" id="sealrow" ${sealed ? "" : "hidden"}>
+        <button class="btn" id="reveal">Aufdecken</button>
+        ${i>0 ? '<button class="back" id="back0">Zurück</button>' : ''}
+      </div>
+      <div class="body">
+        <div class="opts" role="radiogroup" aria-label="Antwortmöglichkeiten">
+          ${opts.map((t,k)=>`<button class="opt" role="radio" aria-checked="${prev.c===k}" data-k="${k}">${esc(t)}</button>`).join("")}
+        </div>
+        <label class="t" for="free">Oder in deinen eigenen Worten (optional)</label>
+        <textarea id="free" placeholder="Was steckt dahinter?">${esc(prev.x)}</textarea>
+        <div class="row">
+          <button class="btn" id="next">${i===Q.length-1 ? "Fertig" : "Weiter"}</button>
+          ${i>0 ? '<button class="back" id="back">Zurück</button>' : ''}
+        </div>
+      </div>
+    </section>`;
+  const card = document.getElementById("card"), next = document.getElementById("next"),
+        free = document.getElementById("free"), sealrow = document.getElementById("sealrow");
+  let choice = prev.c;
+  const refresh = () => { next.disabled = choice === null && !free.value.trim(); };
+  refresh();
+  if (!sealed) revealedAt = Date.now();
+  document.getElementById("reveal").onclick = () => {
+    card.classList.remove("sealed"); sealrow.hidden = true; revealedAt = Date.now();
+    window.scrollTo({top:0, behavior:"smooth"});
+  };
+  card.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+    choice = +b.dataset.k;
+    card.querySelectorAll(".opt").forEach(o => o.setAttribute("aria-checked", o===b));
+    refresh();
+  });
+  free.oninput = refresh;
+  const go = d => {
+    st.a[i] = {c:choice, x:free.value.trim()};
+    st.t[i] = Math.min(300, Math.round((Date.now()-revealedAt)/1000));
+    st.i = i + d; persist();
+    if (st.i >= Q.length) return end();
+    window.scrollTo({top:0});
+    question(d > 0);
+  };
+  next.onclick = () => go(1);
+  const b1 = document.getElementById("back"); if (b1) b1.onclick = () => go(-1);
+  const b0 = document.getElementById("back0"); if (b0) b0.onclick = () => { st.i = i-1; persist(); question(false); };
+}
+
+/* ---------- Code ---------- */
+function b64enc(str){ const bytes = new TextEncoder().encode(str); let s = ""; bytes.forEach(b => s += String.fromCharCode(b)); return btoa(s); }
+function b64dec(b){ const s = atob(b); const bytes = Uint8Array.from(s, c => c.charCodeAt(0)); return new TextDecoder().decode(bytes); }
+
+function makeCode(withText){
+  const o = {v:1, n:me().name, g:me().g, pg:me().pg, a:Q.map((_,k)=> st.a[k] && st.a[k].c !== null ? st.a[k].c : -1)};
+  if (withText) o.x = Q.map((_,k)=> st.a[k] ? st.a[k].x : "");
+  return "FB1-" + b64enc(JSON.stringify(o));
+}
+function parseCode(raw){
+  try {
+    const s = raw.replace(/\s+/g, "");
+    if (!s.startsWith("FB1-")) return null;
+    const o = JSON.parse(b64dec(s.slice(4)));
+    if (!o || o.v !== 1 || !Array.isArray(o.a) || o.a.length !== Q.length) return null;
+    if (!["m","f"].includes(o.g) || !["m","f"].includes(o.pg)) return null;
+    return {
+      name: String(o.n || "").slice(0,30), g:o.g, pg:o.pg,
+      a: o.a.map((c,k)=>({c: Number.isInteger(c) && c >= 0 ? c : null, x: o.x && o.x[k] ? String(o.x[k]) : ""}))
+    };
+  } catch(e){ return null; }
+}
+
+/* ---------- Ende: Code austauschen ---------- */
+function end(){
+  window.scrollTo({top:0});
+  const nm = me().name;
+  app.innerHTML = `
+    <div class="bar" aria-hidden="true">${Q.map(()=>'<i class="done"></i>').join("")}</div>
+    <h1>${nm ? esc(nm) + ", du" : "Du"} hast alle ${Q.length} Fragen beantwortet.</h1>
+    <p class="lead">Jetzt kommt der Teil, der es zu einem Gespräch macht. Tauscht eure Codes aus, dann seht ihr beide dieselbe Auswertung.</p>
+
+    <div class="panel">
+      <h3 style="margin-top:0">1. Deinen Code schicken</h3>
+      <p class="fine" style="margin-top:0">Kopiere ihn und schick ihn deinem Gegenüber, zum Beispiel per Nachricht.</p>
+      <textarea class="code" id="mycode" readonly></textarea>
+      <label class="check"><input type="checkbox" id="withtext" checked> Meine eigenen Worte (Freitext) mitschicken</label>
+      <div class="row" style="margin-top:14px"><button class="btn" id="copy">Code kopieren</button></div>
+      <div class="toast" id="toast"></div>
+    </div>
+
+    <div class="panel">
+      <h3 style="margin-top:0">2. Den Code deines Gegenübers einfügen</h3>
+      <p class="fine" style="margin-top:0">Wenn ihr beide fertig seid, fügt ihr den Code des anderen hier ein.</p>
+      <textarea class="code" id="theircode" placeholder="FB1-…">${esc(st.other || "")}</textarea>
+      <div class="row" style="margin-top:14px"><button class="btn" id="cmp">Auswertung ansehen</button></div>
+      <div class="toast" id="err"></div>
+    </div>
+
+    <details>
+      <summary>Meine Antworten ansehen</summary>
+      <div class="list">
+        ${Q.map((q,k)=>`<div class="item"><p class="qq">${esc(q.q(pOf(), me().g))}</p><p class="aa">${esc(ansText(st.a[k], k, pOf(), me().g))}</p></div>`).join("")}
+      </div>
+    </details>
+    <div class="row"><button class="back" id="again">Neu starten</button></div>`;
+
+  const out = document.getElementById("mycode"), wt = document.getElementById("withtext");
+  const upd = () => { out.value = makeCode(wt.checked); };
+  upd(); wt.onchange = upd;
+  document.getElementById("copy").onclick = () => copyText(out.value, document.getElementById("toast"), "Kopiert. Du kannst den Code jetzt einfügen und verschicken.");
+  document.getElementById("cmp").onclick = () => {
+    const raw = document.getElementById("theircode").value;
+    const o = parseCode(raw);
+    if (!o) { document.getElementById("err").textContent = "Dieser Code ist nicht gültig. Kopiere ihn bitte vollständig, er beginnt mit FB1-."; return; }
+    st.other = raw.trim(); persist(); compare(o);
+  };
+  document.getElementById("again").onclick = () => {
+    st = {prof:{name:"", g:null, pg:null}, i:-1, a:[], t:[], other:""}; saved = null;
+    try { localStorage.removeItem(KEY); } catch(e){}
+    intro();
+  };
+}
+
+function ansText(a, k, p, g){
+  if (!a) return "–";
+  const parts = [];
+  if (a.c !== null && a.c !== undefined) parts.push(Q[k].o(p, g)[a.c]);
+  if (a.x) parts.push(a.x);
+  return parts.join(" — ") || "–";
+}
+
+/* ---------- Auswertung ---------- */
+function judge(k, ac, bc){
+  const q = Q[k];
+  if (ac === null || bc === null) return "open";
+  if (q.u && (q.u.includes(ac) || q.u.includes(bc))) return "open";
+  if (q.kind === "comp") return ((ac===0&&bc===1)||(ac===1&&bc===0)||(ac===2&&bc===2)) ? "match" : "diff";
+  if (ac === bc) return "match";
+  return q.kind === "learn" ? "learn" : "diff";
+}
+
+function compare(o){
+  window.scrollTo({top:0});
+  const A = me(), pA = pOf();
+  const nameA = A.name || "Du", nameB = o.name || "Dein Gegenüber";
+  const res = Q.map((q,k)=>{
+    const a = st.a[k] || {c:null,x:""}, b = o.a[k];
+    return {k, a, b, s: judge(k, a.c, b.c)};
+  });
+  const g = s => res.filter(r => r.s === s);
+  const match = g("match"), talk = res.filter(r => r.s==="diff" || r.s==="open"), learn = g("learn");
+
+  const card = r => {
+    const q = Q[r.k];
+    const ta = r.a.c !== null ? q.o(pA, A.g)[r.a.c] : "";
+    const tb = r.b.c !== null ? q.o(P(o.pg), o.g)[r.b.c] : "";
+    const cls = r.s === "match" ? "match" : r.s === "learn" ? "learn" : "talk";
+    const tag = r.s === "match" ? "Ihr seht es gleich" : r.s === "learn" ? "Gut zu wissen" : r.s === "open" ? "Noch offen" : "Unterschiedlich";
+    const line = (n, t, x) => `<p class="aa"><b>${esc(n)}:</b> ${esc(t || "keine Auswahl")}${x ? `<em>„${esc(x)}“</em>` : ""}</p>`;
+    return `<div class="item ${cls}"><span class="tag">${tag}</span><p class="qq">${esc(q.q(pA, A.g))}</p>${line(nameA, ta, r.a.x)}${line(nameB, tb, r.b.x)}</div>`;
+  };
+  const section = (title, intro, arr) => arr.length ? `<h2>${title}</h2><p class="fine" style="margin-top:0">${intro}</p><div class="list">${arr.map(card).join("")}</div>` : "";
+
+  app.innerHTML = `
+    <h1>${esc(nameA)} und ${esc(nameB)}</h1>
+    <p class="lead">Bei ${match.length} von ${Q.length} Fragen seht ihr es gleich. Über ${talk.length} Fragen lohnt sich ein Gespräch${learn.length ? `, und bei ${learn.length} weiteren erfahrt ihr etwas Neues voneinander` : ""}.</p>
+    ${section("Darüber solltet ihr reden", "Hier unterscheidet ihr euch oder mindestens eine Person ist noch unsicher. Fragt euch gegenseitig: Warum habe ich so geantwortet? Was steckt dahinter?", talk)}
+    ${section("Gut zu wissen", "Hier ist es völlig in Ordnung, verschieden zu sein. Es zeigt, was das Gegenüber braucht oder wichtig findet.", learn)}
+    ${section("Hier seid ihr euch einig", "Eine gemeinsame Basis, auf die ihr bauen könnt.", match)}
+    <div class="row"><button class="btn ghost" id="backend">Zurück zu meinem Code</button></div>
+    <p class="fine">Das Gegenüber sieht dieselbe Auswertung, wenn es deinen Code einfügt.</p>`;
+  document.getElementById("backend").onclick = end;
+}
+
+function letter(){
+  app.innerHTML = `
+    <div class="letter">
+      <p class="hi">Hallo,</p>
+      <p>ich freue mich, dass wir uns sehen!</p>
+      <p>Das ist ein Quiz darüber, wohin du mit einer Partnerin gehen möchtest und was deine Prioritäten sind. Kurz, um das klarzustellen: Natürlich geht es hier um dich und mich, aber eben nicht nur.</p>
+      <p>Erstens bin ich ziemlich stolz auf mich, dass ich das selbst gemacht habe (na ja, Claude hat ein bisschen geholfen). Und zweitens dachte ich mir, dass es für dich interessant sein könnte, diese Fragen einmal beantwortet zu haben. Hab einfach Spaß daran. Es ist nicht auf mich zu beziehen, sondern soll wirklich in erster Linie für dich sein.</p>
+    </div>
+    <div class="row"><button class="btn" id="onward">Weiter</button></div>`;
+  document.getElementById("onward").onclick = () => { window.scrollTo({top:0}); intro(); };
+}
+
+letter();
+</script>
+</body>
+</html>
